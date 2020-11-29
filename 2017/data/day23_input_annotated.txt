@@ -1,0 +1,44 @@
+# This program counts non-prime numbers between
+# 107900 and 124900 (inclusive) in steps of 17 (there are 907 of them)
+# Loops B and C are double loops over integers 2 through the current value of b
+# registers d and e are used to hold the integers that are looped over and multiplied
+# The program checks whether the product of d and e is equal to b
+# If they are f, which starts at 1, is set to zero
+# register f is used to flag whether the current value of b is non-prime
+# register g is used to store various values that after subtracting b are used to 
+# skip lines if g == b (so for flow control)
+set b 79
+set c b
+jnz a 2
+jnz 1 5
+
+# The following 4 lines are skipped in debug
+mul b 100  
+sub b -100000  
+set c b  
+sub c -17000 
+
+set f 1  # Start loop A
+set d 2
+set e 2  # Start loop B, increments d
+set g d  # Start loop C, increments e
+mul g e  # At the end of loop C, e = b, f = 0 iff b % d == 0, g = 0
+sub g b  #     a, b, c, d, h do not change
+jnz g 2
+set f 0  # Only gets executed if b % d == 0 w/in loop
+sub e -1
+set g e
+sub g b
+jnz g -8  # Loop to C: loop ends when e == b
+sub d -1
+set g d
+sub g b
+jnz g -13  # Loop to B: loop ends when d == b
+jnz f 2  # This always happens unless b is prime
+sub h -1  # Only happens for b == not prime number
+set g b
+sub g c
+jnz g 2
+jnz 1 3  # Jump to end only if b == c
+sub b -17
+jnz 1 -23  # Loop back to A: loop ends when b == c
