@@ -16,7 +16,7 @@ def combinations(iterable, r):
             for val2 in iterable[i+1:]:
                 combos.append([val1, val2])
         else:
-            sub_combos = my_combinations(iterable[i+1:], r-1)
+            sub_combos = combinations(iterable[i+1:], r-1)
             combos.extend([[val1] + vals for vals in sub_combos])
     
     return combos
