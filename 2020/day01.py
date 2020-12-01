@@ -1,7 +1,26 @@
 # Advent of Code 2020, Day 1
 # Michael Bell
 # 12/1/2020
-from itertools import combinations
+# from itertools import combinations
+
+
+def combinations(iterable, r):
+
+    assert r > 1
+    assert len(iterable) >= r
+
+    combos = []
+
+    for i, val1 in enumerate(iterable[:-(r-1)]):
+        if r == 2:
+            for val2 in iterable[i+1:]:
+                combos.append([val1, val2])
+        else:
+            sub_combos = my_combinations(iterable[i+1:], r-1)
+            combos.extend([[val1] + vals for vals in sub_combos])
+    
+    return combos
+
 
 def parse_expense_report(expense_report):
     return [int(val) for val in expense_report.split('\n') if val.strip()]
