@@ -1,7 +1,7 @@
 # Advent of Code 2020, Day 02
 # Michael Bell
 # 12/2/2020
-
+import helper
 
 def parse_password_db(password_list):
     records = [r for r in password_list.split('\n') if r.strip()]
@@ -69,8 +69,7 @@ assert count_valid_passwords(parse_password_db(sample_db)) == 2
 assert count_valid_passwords(parse_password_db(sample_db), is_pw_valid_toboggan) == 1
 
 # The real thing
-with open('./inputs/day02.txt', 'r') as f:
-    raw_pw_db = f.read()
+raw_pw_db = helper.read_input(2)
 
 pw_db = parse_password_db(raw_pw_db)
 

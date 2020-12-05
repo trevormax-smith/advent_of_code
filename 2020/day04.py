@@ -1,7 +1,7 @@
 # Advent of Code 2020, Day 4
 # Michael Bell
 # 12/4/2020
-
+import helper
 
 class Passport(object):
 
@@ -197,9 +197,7 @@ assert len([p for p in passports if p.check_passport(optional_fields='cid', vali
 
 
 ###### THE REAL THING #######################################################
-
-with open('./inputs/day04.txt', 'r') as f:
-    batch = f.read()
+batch = helper.read_input(4)
 passports = parse_batch(batch)
 print("Part 1:", len([p for p in passports if p.check_passport(optional_fields='cid')]))
 print("Part 2:", len([p for p in passports if p.check_passport(optional_fields='cid', validate=True)]))

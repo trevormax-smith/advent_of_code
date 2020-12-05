@@ -1,7 +1,7 @@
 # Advent of Code 2020, Day 3
 # Michael Bell
 # 12/3/2020
-
+import helper
 
 class TreeMap(object):
     TREE = '#'
@@ -57,8 +57,7 @@ assert tree_map.check_for_tree(7, 21)
 assert tree_map.count_trees_on_path(1, 3) == 7
 assert check_paths(tree_map) == 336
 
-with open('./inputs/day03.txt', 'r') as f:
-    tree_pattern = f.read()
+tree_pattern = helper.read_input(3)
 
 tree_map = TreeMap(tree_pattern)
 print('Part 1:', tree_map.count_trees_on_path(1, 3))

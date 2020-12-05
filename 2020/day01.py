@@ -3,6 +3,7 @@
 # 12/1/2020
 
 # from itertools import combinations
+import helper
 
 
 def combinations(iterable, r):
@@ -50,8 +51,7 @@ expense_report = parse_expense_report(sample_input)
 assert expense_report_checker(expense_report) == 514579
 assert expense_report_checker(expense_report, 3) == 241861950
 
-with open('./inputs/day01.txt', 'r') as f:
-    expense_report = parse_expense_report(f.read())
+expense_report = parse_expense_report(helper.read_input(1))
 
 print("First solution", expense_report_checker(expense_report))
 print("Second solution", expense_report_checker(expense_report, 3))
