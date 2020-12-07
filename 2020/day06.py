@@ -1,4 +1,4 @@
-# Advent of Code 2020, Day 5
+# Advent of Code 2020, Day 6
 # Michael Bell
 # 12/6/2020
 from collections import defaultdict, namedtuple

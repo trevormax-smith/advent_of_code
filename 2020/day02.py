@@ -1,4 +1,4 @@
-# Advent of Code 2020, Day 02
+# Advent of Code 2020, Day 2
 # Michael Bell
 # 12/2/2020
 import helper

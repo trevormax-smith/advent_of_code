@@ -1,6 +1,12 @@
+# Advent of Code 2020, Day 7
+# Michael Bell
+# 12/7/2020
+from typing import List, Tuple
 import helper
 
-def parse_regulation(reg):
+def parse_regulation(reg: str) -> Tuple[int, str]:
+    '''Parse a single line of the bag regulations'''
+
     outer_bag, inner_bags = reg.replace('bags', '').replace('bag', '').replace('.', '').split('contain')
 
     outer_bag = outer_bag.strip()  # Get rid of any trailing spaces, outer bag is all set now
@@ -14,37 +20,40 @@ def parse_regulation(reg):
         for ib in inner_bags
     ]
     
-    return outer_bag, inner_bags
+    return outer_bag, inner_bags  # A color string and a tuple of (quantity, color string)
 
 
-def parse_regulations(regs):
+def parse_regulations(regs: List[str]) -> List[Tuple[int, str]]:
+    '''
+    Parse a list of regulations, where each line has a bag color and its required contents.
+    '''
     regs = [parse_regulation(reg) for reg in regs]
     regs = {r[0]: r[1] for r in regs}
     return regs
 
 
-def can_contain_color(regs, outer_bag, color):
+def can_contain_color(regs: List[Tuple[int, str]], outer_bag: str, color: str) -> bool:
   
-    if any(ib[1] == color for ib in regs[outer_bag]):
-        return True
-    elif len(regs[outer_bag]) == 0:
+    if len(regs[outer_bag]) == 0:
+        # We've hit the end of the line
         return False
     else:
         for ib in regs[outer_bag]:
-            if can_contain_color(regs, ib[1], color):
+            if ib[1] == color or can_contain_color(regs, ib[1], color):
                 return True
         return False
 
 
-def count_required_bags(regs, color):
+def count_required_bags(regs: List[Tuple[int, str]], color: str) -> int:
     bag_count = 0
     for ib in regs[color]:
         bag_count += ib[0] * (1 + count_required_bags(regs, ib[1]))
     return bag_count
 
 
-def bags_that_can_contain(regs, color):
+def bags_that_can_contain(regs: List[Tuple[int, str]], color: str) -> List[str]:
     return [ob for ob in regs if can_contain_color(regs, ob, color)]
+
 
 ### TESTS ###############################################################################
 sample_regulations = '''light red bags contain 1 bright white bag, 2 muted yellow bags.
