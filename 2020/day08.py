@@ -1,13 +1,19 @@
 # Advent of Code 2020, Day 8
 # Michael Bell
 # 12/8/2020
+from typing import List, Tuple
 import helper
+
 
 class InfiniteLoopError(Exception):
     pass
 
 
-def compile_program(program_code):
+def compile_program(program_code: List[str]) -> List[Tuple[str, int]]:
+    '''
+    Converts list of lines of code into list of tuples containing (command, argument) pairs.
+    Arguments are integers, commands strings.
+    '''
     output = []
     for line in program_code:
         cmd, arg = line.split(' ')
@@ -16,11 +22,14 @@ def compile_program(program_code):
 
 
 class Interpreter(object):
+    '''
+    State of interpreter is maintained after execution. Resets when execute command is run again.
+    '''
 
     def __init__(self):
         self.reset()
     
-    def execute_program(self, program):
+    def execute_program(self, program: List[Tuple[str, int]]):
         self.reset()
         step = 1
         n_lines = len(program)
@@ -38,33 +47,37 @@ class Interpreter(object):
         return
 
     def reset(self):
-        self.execution_order = {}
+        self.execution_order = {}  # Used to check for infinite loops and to playback for debugging
         self.accumulator = 0
-        self.position = 0
+        self.position = 0  # Current position in program execution
 
     def play_back(self):
+        '''
+        Print out playback of execution in order of lines as they were executed.
+        '''
         exor = sorted([(interp.execution_order[k], k) for k in interp.execution_order], key=lambda x: x[0])
         for line in exor:
             print(line[0], line[1] + 1)  # Adding 1 to the code line because line numbering in editor starts at 1
 
-    def execute_command(self, cmd, arg):
+    def execute_command(self, cmd: str, arg: int):
         getattr(self, cmd)(arg)
 
-    def nop(self, arg):
+    def nop(self, arg: int):
         self.position += 1
         return
     
-    def acc(self, arg):
+    def acc(self, arg: int):
         self.accumulator += arg
         self.position += 1
         return
     
-    def jmp(self, arg):
+    def jmp(self, arg: int):
         self.position += arg
         return
 
 
-def fix_program(program):
+def fix_program(program: List[Tuple[str, int]]) -> List[Tuple[str, int]]:
+    
     interp = Interpreter()
 
     for i, loc in enumerate(program):
