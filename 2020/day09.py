@@ -1,3 +1,7 @@
+# Advent of Code 2020, Day 9
+# Michael Bell
+# 12/9/2020
+
 from typing import Union, List, Tuple
 from itertools import combinations  # I wrote my own on day 1, but this is much faster
 import helper
