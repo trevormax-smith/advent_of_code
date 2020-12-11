@@ -2,6 +2,7 @@
 # Michael Bell
 # 12/10/2020
 from itertools import combinations
+from collections import defaultdict
 import helper
 
 # For part 2:
@@ -15,9 +16,10 @@ import helper
 #       e.g. 1, 2, 3 can have 123, 13
 #   Every block of 4 contiguous has 4 configs
 #       e.g. 1, 2, 3, 4 can have 1234, 124, 134, 14
-#   What about a block of 5... it has 8
-#       e.g. 1, 2, 3, 4, 5... 1234 5, 124 5, 134 5, 14 5, 1 2345 (already got it), 1 235, 1 245, 1 25, 135
-#   Is the number of combos for N adapters spaced 1 apart, where ends are fixed, 2 ** (N - 2)
+#   What about a block of 5... it has 7
+#       e.g. 1, 2, 3, 4, 5... 1234 5, 124 5, 134 5, 14 5, 1 2345 (already got it), 1 235, 1 245 (already got it), 1 25, 135
+#   Not sure how this scales... is there some formula as a function of N?
+#   Turns out there aren't any subchains longer than 5
 
 
 def get_possible_chains(sub_chain):
@@ -56,6 +58,7 @@ def adapter_chain_differences(adapter_chain):
 
 
 def count_configs(adapter_list):
+    '''DOESN'T WORK'''
     adapter_chain = chain_adapters(adapter_list)
     diffs = adapter_chain_differences(adapter_chain)
     # Probably fucking up the indexing here... need to think about it more
@@ -65,6 +68,7 @@ def count_configs(adapter_list):
     for i, diff in enumerate(diffs):
         if diff == 3:
             chain_end = i
+            # If you have a N_COMBOS as a function of N, put it here, this isn't it (I miscounted at first)
             this_combos = max((2 ** (chain_end - chain_start + 1 - 2), 1))
             sub_chain_combos.append(this_combos)
             chain_start = i + 1
@@ -83,14 +87,20 @@ def count_configs2(adapter_list):
 
     combos = 1
 
+    len_to_combos = defaultdict(list)
+
     while chain_end < chain_len:
         if adapter_chain[chain_end] - adapter_chain[chain_end - 1] == 3:
-            # 0 3 4 5 8 9 12
             sub_chain = adapter_chain[chain_start:chain_end]
             n_combos = get_possible_chains(sub_chain)
+            len_to_combos[len(sub_chain)].append(n_combos)
             combos *= n_combos
             chain_start = chain_end
         chain_end += 1
+
+    to_print = sorted([(k, len_to_combos[k]) for k in len_to_combos], key=lambda x: x[0])
+    for p in to_print:
+        print(p[0], p[1])
 
     return combos
 
@@ -99,7 +109,7 @@ def part1_answer(adapter_chain_differences):
     n_1_diffs = sum(1 for d in adapter_chain_differences if d == 1)
     n_2_diffs = sum(1 for d in adapter_chain_differences if d == 2)
     n_3_diffs = sum(1 for d in adapter_chain_differences if d == 3)
-    print(n_diffs, n_1_diffs, n_2_diffs, n_3_diffs)
+    
     assert n_diffs == n_1_diffs + n_3_diffs + n_2_diffs
     return n_1_diffs * n_3_diffs
 
@@ -119,8 +129,6 @@ sample_adapters = parse_adapter_list(sample_adapters)
 sample_adapter_chain = chain_adapters(sample_adapters)
 sample_diffs = adapter_chain_differences(sample_adapter_chain)
 assert part1_answer(sample_diffs) == 35
-print(count_configs(sample_adapters))
-print(count_configs2(sample_adapters))
 assert count_configs(sample_adapters) == 8
 
 
