@@ -4,6 +4,7 @@
 import math
 import helper
 
+
 class Waypoint(object):
     def __init__(self, x, y, ship):
         self.x = x
