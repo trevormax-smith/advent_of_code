@@ -1,23 +1,27 @@
 # Advent of Code 2020, Day 15
 # Michael Bell
 # 12/15/2020
-from queue import Queue
+from time import time
 
 
-class MyQueue(object):
-    def __init__(self, max_size):
-        self.max_size = max_size
+class Len2Queue(object):
+    def __init__(self):
+        self.max_size = 2
         self.queue = []
+        self.full = False
     def put(self, val):
-        if self.full():
-            self.queue = self.queue[1:]
-        self.queue.append(val)
+        if self.full:
+            self.queue[0] = self.queue[1]
+            self.queue[1] = val
+        else:
+            self.queue.append(val)
+            if len(self.queue) >= self.max_size:
+                self.full = True
     def get(self):
         val = self.queue[0]
         self.queue = self.queue[1:]
+        self.full = False
         return val
-    def full(self):
-        return len(self.queue) >= self.max_size
     def diff_q(self):
         if len(self.queue) <= 1:
             return None
@@ -30,7 +34,7 @@ def memory_game_result(starting_numbers, nth_number=2020):
     # Keyed on number, give a list of the turns when it was spoken
     numbers_spoken = {}
     for i, sn in enumerate(starting_numbers):
-        q = MyQueue(2)
+        q = Len2Queue()
         q.put(i + 1)
         numbers_spoken[sn] = q
     
@@ -47,7 +51,7 @@ def memory_game_result(starting_numbers, nth_number=2020):
         if number_to_speak in numbers_spoken:
             numbers_spoken[number_to_speak].put(n)
         else:
-            q = MyQueue(2)
+            q = Len2Queue()
             q.put(n)
             numbers_spoken[number_to_speak] = q
         
@@ -59,7 +63,9 @@ def memory_game_result(starting_numbers, nth_number=2020):
 
 sample_starting_numbers = [0,3,6]
 assert memory_game_result(sample_starting_numbers) == 436
-# assert memory_game_result(sample_starting_numbers, 30000000) == 175594
+t0 = time()
+assert memory_game_result(sample_starting_numbers, 30000000) == 175594
+print('Runtime', time() - t0)
 sample_starting_numbers = [1,3,2]
 assert memory_game_result(sample_starting_numbers) == 1
 # assert memory_game_result(sample_starting_numbers, 30000000) == 2578
