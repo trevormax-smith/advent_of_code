@@ -5,24 +5,30 @@ from itertools import product
 import helper
 
 
-def relative_neighbor_coords():
-    relative_coords = list(product([-1, 0, 1], repeat=3))
-    relative_coords.remove((0,0,0))
+def get_relative_neighbor_coords(n_dim=3):
+    relative_coords = list(product([-1, 0, 1], repeat=n_dim))
+    relative_coords.remove(tuple([0] * n_dim))
     return relative_coords
 
-relative_neighbor_coords = relative_neighbor_coords()
+
+def get_neighbor_coords(coords):
+    neighbor_coords = []
+    relative_neighbor_coords = get_relative_neighbor_coords(len(coords))
+    for rnc in relative_neighbor_coords:
+        this_neighbor_coord = []
+        for c, rn in zip(coords, rnc):
+            this_neighbor_coord.append(c + rn)
+        neighbor_coords.append(tuple(this_neighbor_coord))
+    return neighbor_coords
 
 
-def get_neighbor_coords(x, y, z):
-    return [(x + nc[0], y + nc[1], z + nc[2]) for nc in relative_neighbor_coords]
-
-
-def parse_init(init):
+def parse_init(init, n_dim=3):
     cube = {}
     for y, row in enumerate(init):
         for x, val in enumerate(row):
             if val == '#':
-                cube[(x, y, 0)] = 1
+                coords = tuple([x, y] + [0] * (n_dim - 2))
+                cube[coords] = 1
     return cube
 
 
@@ -30,7 +36,7 @@ def fill_empty_neighbors(cube):
     new_cube = cube.copy()
     for coords in cube:
         if cube[coords] == 1:
-            neighbor_coords = get_neighbor_coords(*coords)
+            neighbor_coords = get_neighbor_coords(coords)
             for nc in neighbor_coords:
                 if nc not in cube:
                     new_cube[nc] = 0
@@ -38,7 +44,7 @@ def fill_empty_neighbors(cube):
 
 
 def count_active_neighbors(cube, coords):
-    neighbor_coords = get_neighbor_coords(*coords)
+    neighbor_coords = get_neighbor_coords(coords)
     count = 0
     for nc in neighbor_coords:
         if nc in cube:
@@ -79,7 +85,22 @@ assert cube[(2, 2, 0)] == 1
 cube = cycle_cube(cube, 6)
 assert sum(cube[coords] for coords in cube) == 112
 
+cube = parse_init(sample_init, 4)
+assert len(cube) == 5
+assert cube[(1, 0, 0, 0)] == 1
+assert cube[(2, 1, 0, 0)] == 1
+assert cube[(0, 2, 0, 0)] == 1
+assert cube[(1, 2, 0, 0)] == 1
+assert cube[(2, 2, 0, 0)] == 1
+
+cube = cycle_cube(cube, 6)
+assert sum(cube[coords] for coords in cube) == 848
+
 init = helper.read_input_lines(17)
 cube = parse_init(init)
 cube = cycle_cube(cube, 6)
 print('Part 1:', sum(cube[coords] for coords in cube))
+
+cube = parse_init(init, 4)
+cube = cycle_cube(cube, 6)
+print('Part 2:', sum(cube[coords] for coords in cube))
