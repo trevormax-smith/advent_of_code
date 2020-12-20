@@ -1,6 +1,16 @@
 # Advent of Code 2020, Day 20
 # Michael Bell
 # 12/20/2020
+'''
+In all below, an "image" is a list of lists of values, e.g.
+
+    [
+        ['#', '.', '#'],
+        ['.', '#', '.'],
+        ['#', '.', '#'],
+    ]
+'''
+
 
 import helper
 
@@ -13,6 +23,9 @@ sea_monster_template = [
 
 
 def parse_image_tiles(tile_data):
+    '''
+    Parse data in provided format, return a dict keyed on image ID having values of the image data (list of lists of characters).
+    '''
     tile_data_list = tile_data.split('\n\n')
     tiles = {}
 
@@ -35,14 +48,21 @@ def parse_image_tiles(tile_data):
 
 
 def init_image(n_rows, n_cols):
+    '''
+    Create an empty image (list of lists of chars) with given number of rows and columns.
+    '''
     return [[' '] * n_cols for _ in range(n_rows)]
     
 
 def get_dims(image):
+    '''Return number of rows and number of columns in the provided image'''
     return len(image), len(image[0])
 
 
 def transpose(image):
+    '''
+    Return the transpose of the given image.
+    '''
     
     n_rows, n_cols = get_dims(image)
     new_image = init_image(n_cols, n_rows)  # flip columns and rows, so an MxN becomes NxM
@@ -57,10 +77,12 @@ def transpose(image):
 
 
 def get_row(image, row_num):
+    '''Return the given row from the image as a list'''
     return image[row_num]
 
 
 def get_col(image, col_num):
+    '''Return the given column from the image as a list'''
     col = []
     for row in image:
         col.append(row[col_num])
@@ -68,6 +90,10 @@ def get_col(image, col_num):
 
 
 def get_edge(image, direction):
+    '''
+    Get the row or column from the edge of the image in the given direction.
+    Directions are 0=N, 1=E, 2=S, 3=W
+    '''
     direction = direction % 4
 
     if direction == 0:
@@ -81,10 +107,18 @@ def get_edge(image, direction):
 
 
 def get_opposite_edge(image, direction):
+    '''
+    Get the row or column at the edge of the image OPPOSITE to the given direction.
+    Directions are 0=N, 1=E, 2=S, 3=W.
+    So if the given direction is 0 (North) the edge in direction 2 (South) is returned.
+    '''
     return get_edge(image, direction + 2)
 
 
 def copy(image):
+    '''
+    Return a copy of the given image.
+    '''
     n_rows, n_cols = get_dims(image)
     new_image = init_image(n_rows, n_cols)
     for row_num in range(n_rows):
@@ -94,14 +128,20 @@ def copy(image):
 
 
 def display(image, title=None):
+    '''
+    Print the image to the screen.
+    '''
     if title:
         print(title)
     for row in image:
-        print(' '.join(row))
+        print(' '.join(row))  # join w/ a space so the image appears roughly square when n_rows == n_cols
     print()
 
 
 def flip(image, axis=0):
+    '''
+    Flip the given image about the given axis (0 flips vertically, 1 flips horizontally)
+    '''
     
     n_rows, n_cols = get_dims(image)
     new_image = init_image(n_rows, n_cols)
@@ -116,6 +156,9 @@ def flip(image, axis=0):
 
 
 def rotate(image, direction='CW'):
+    '''
+    Rotate the given image in the direction indicated ('CW' or 'CCW')
+    '''
 
     new_image = transpose(image)
     flip_axis = 0 if direction == 'CCW' else 1
@@ -123,7 +166,14 @@ def rotate(image, direction='CW'):
 
 
 def check_neighbor(ref_image, other_image, direction, reorient=True):
-    # return None if not a match, otherwise return the other_image, perhaps re-oriented if allowed
+    '''
+    Check if the edge of the REF_IMAGE matches the edge of the OTHER_IMAGE in the given direction.
+    The opposite edge of the other image is matched to the edge of the ref image in the direction indicated
+    (e.g. the north edge of ref will attempt to match to the south edge of other).
+    The other image will be flipped and rotated to check for a matching edge, unless reorient is False.
+
+    Returns None if not a match. If there is a match, the other_image is returned in the matching orientation.
+    '''
     
     other_image_copy = copy(other_image)
 
@@ -138,15 +188,19 @@ def check_neighbor(ref_image, other_image, direction, reorient=True):
     return None
 
 
-# Need a function to turn linked array into array of image IDs
 def linked_array_to_array(linked_array):
+    '''
+    Given a dictionary mapping image IDs to neighboring image IDs, return a 2D array 
+    (list of lists) of IDs in the appropriate ordering.
+    '''
+    # Start with the top left corner, where there is no northern and western neighbor (so the neighbor IDs are -1 in those directions)
     current_id = [k for k in linked_array if linked_array[k][0] < 0 and linked_array[k][-1] < 0][0]
 
     array = []
     row = [current_id]
     while not (linked_array[current_id][1] < 0 and linked_array[current_id][2] < 0):
         if linked_array[current_id][1] > 0:
-            # In the middle of a row
+            # In the middle of a row, so move to the next ID in the row, that is the ID to the east of the current ID
             current_id = linked_array[current_id][1]
         elif linked_array[current_id][1] < 0:
             # At end of the row, to go next row
@@ -161,9 +215,13 @@ def linked_array_to_array(linked_array):
 
 
 def image_tiles_to_image(linked_id_array, image_tiles):
+    '''
+    Given a mapping between image tile IDs to neighboring tile IDs, and a mapping from tile ID to the tile image,
+    stitch image tiles together into a sigle image. The rows and columns at the edges of the tiles are clipped.
+    '''
     id_array = linked_array_to_array(linked_id_array)
     tile_n_rows, tile_n_cols = get_dims(image_tiles[id_array[0][0]])
-    tile_n_rows -= 2
+    tile_n_rows -= 2  # Because we do not include the edges of the tile in the stitched image
     tile_n_cols -= 2
     id_array_rows, id_array_cols = get_dims(id_array)
 
@@ -183,7 +241,12 @@ def image_tiles_to_image(linked_id_array, image_tiles):
     return image
             
 
-def stitch(tiles, starting_id=None):
+def find_tile_neighbors_and_orientations(tiles, starting_id=None):
+    '''
+    Given a set of image tiles as a dict mapping tile ID to tile image, find neighbors for each tile (as a dict mapping tile ID to its neighboring tile IDs)
+    and the orientations of the tiles needed to align them with their neighbors (as a new dict mapping tile ID to reoriented image tiles).
+    Optionally specify the tile ID to use to define overall orientation, otherwise an arbitrary tile ID will be chosen to start.
+    '''
     linked_array = {tile_id: [None, None, None, None] for tile_id in tiles}  # stores neighbors to the NESW, -1 for no neighbor
     if starting_id is None:
         current_tile = list(tiles.keys())[0]
@@ -217,7 +280,6 @@ def stitch(tiles, starting_id=None):
                     # Must be on an edge
                     linked_array[current_tile][direction] = -1
 
-
         # Next current tile will be a tile that has been reoriented and has open neighbors (some None in linked array)
         found_one = False
         for tile_id in reoriented_tiles:
@@ -233,6 +295,10 @@ def stitch(tiles, starting_id=None):
 
 
 def get_corner_id_product(linked_array):
+    '''
+    Given a linked array of tile IDs, find the corner tiles (those missing neighbors in two directions) and
+    return the product of corner tile IDs.
+    '''
     prod = 1
     for tile_id in linked_array:
         if sum(1 for d in range(4) if linked_array[tile_id][d] < 0) == 2:
@@ -241,6 +307,11 @@ def get_corner_id_product(linked_array):
 
 
 def count_template_matches(original_image, template):
+    '''
+    Given an image, and a template image, count the number of sub-images within the given image that have a pattern of # 
+    characters that match the pattern of # characters in the template. The original image will be rotated and flipped 
+    until an orientation is found where there is at least one match, if possible.
+    '''
 
     n_rows_temp, n_cols_temp = get_dims(template)
     n_rows, n_cols = get_dims(original_image)
@@ -279,6 +350,9 @@ def count_template_matches(original_image, template):
 
 
 def count_pixels_w_value(image, pixel_value):
+    '''
+    Count the number of pixels in the given image that have a value matching the given pixel value.
+    '''
     count = 0
     for row in image:
         for col in row:
@@ -398,21 +472,20 @@ Tile 3079:
 
 '''
 
-
 image_tiles = parse_image_tiles(sample_tiles)
-image = image_tiles[3079]
-vert_flipped = flip(image)
-horz_flipped = flip(image, axis=1)
-cw_rotated = rotate(image)
-ccw_rotated = rotate(image, direction='CCW')
 
+# image = image_tiles[3079]
+# vert_flipped = flip(image)
+# horz_flipped = flip(image, axis=1)
+# cw_rotated = rotate(image)
+# ccw_rotated = rotate(image, direction='CCW')
 # display(image, 'Original')
 # display(vert_flipped, 'Flip Vertically')
 # display(horz_flipped, 'Flip Horizontally')
 # display(cw_rotated, 'CW Rotation')
 # display(ccw_rotated, 'CCW Rotation')
 
-linked_id_array, oriented_tiles = stitch(image_tiles, 3079)
+linked_id_array, oriented_tiles = find_tile_neighbors_and_orientations(image_tiles, 3079)
 assert get_corner_id_product(linked_id_array) == 20899048083289
 stitched_image = image_tiles_to_image(linked_id_array, oriented_tiles)
 
@@ -427,7 +500,7 @@ assert rough_water_in_image == 273
 
 data = helper.read_input(20)
 image_tiles = parse_image_tiles(data)
-linked_id_array, oriented_tiles = stitch(image_tiles)
+linked_id_array, oriented_tiles = find_tile_neighbors_and_orientations(image_tiles)
 print('Part 1:', get_corner_id_product(linked_id_array))
 stitched_image = image_tiles_to_image(linked_id_array, oriented_tiles)
 template_matches = count_template_matches(stitched_image, sea_monster_template)
