@@ -9,6 +9,8 @@ In all below, an "image" is a list of lists of values, e.g.
         ['.', '#', '.'],
         ['#', '.', '#'],
     ]
+
+Should probably have made an image class, but *shrug*
 '''
 
 
@@ -318,8 +320,8 @@ def count_template_matches(original_image, template):
 
     image = copy(original_image)
 
-    for _ in range(2):
-        for _ in range(4):
+    for _ in range(2):  # Go through image as is, then flip
+        for _ in range(4):  # For each, try all rotations, too
 
             count = 0
 
