@@ -20,6 +20,7 @@ def parse_decks(deck_data):
 
 def combat(starting_decks, recursive=False, game_num=1, verbose=False):
 
+    # Deep copy so we aren't altering the decks as passed in below
     decks = [d.copy() for d in starting_decks]
 
     if verbose:
@@ -27,6 +28,7 @@ def combat(starting_decks, recursive=False, game_num=1, verbose=False):
 
     round_number = 1
 
+    # Keep a list of deck configurations seen before so we know to end game if we're going to loop
     previous_decks = []
 
     while all(len(d) > 0 for d in decks):
@@ -37,7 +39,8 @@ def combat(starting_decks, recursive=False, game_num=1, verbose=False):
 
         if recursive:
             if decks in previous_decks:
-                print(f'Found loop in Game {game_num}, round {round_number}')
+                if verbose:
+                    print(f'Found loop in Game {game_num}, round {round_number}')
                 return 0, None
             else:
                 previous_decks.append([deck.copy() for deck in decks])
@@ -47,7 +50,7 @@ def combat(starting_decks, recursive=False, game_num=1, verbose=False):
         if recursive and all(len(d) >= cp for cp, d in zip(cards_played, decks)):
             if verbose:
                 print('Playing a sub-game to determine the winner...\n')
-            winner, _ = combat(decks, recursive=True, game_num=game_num + 1, verbose=verbose)
+            winner, _ = combat([d[:cp] for cp, d in zip(cards_played, decks)], recursive=True, game_num=game_num + 1, verbose=verbose)
         else:
             winner = cards_played.index(max(cards_played))
 
