@@ -57,7 +57,6 @@ def find_aunt(ticker_tape, aunts, match_func=exactly_match):
 
 
 aunts_sue = parse_aunts(helper.read_input_lines(16))
-print('here')
 
 ticker_tape = dict(
     children=3, cats=7, samoyeds=2, pomeranians=3, akitas=0, 
