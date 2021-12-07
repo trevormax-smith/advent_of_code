@@ -7,7 +7,7 @@ spawn_timer = 6
 
 
 def parse_fish(fish: str) -> List[int]:
-    return [int(v) for v in fish.split(',')]
+    return [int(v) for v in fish.strip().split(',')]
 
 
 def naive_simulation(fish: List[int], days: int) -> List[int]:
@@ -48,16 +48,17 @@ def scalable_simulation(fish: List[int], days: int) -> int:
     return sum(fish_tracker[timer] for timer in fish_tracker)
 
 
-### TESTS
-test_fish = parse_fish('3,4,3,1,2')
-assert len(naive_simulation(test_fish, 18)) == 26
-assert len(naive_simulation(test_fish, 80)) == 5934
+if __name__ == '__main__':
+    ### TESTS
+    test_fish = parse_fish('3,4,3,1,2')
+    assert len(naive_simulation(test_fish, 18)) == 26
+    assert len(naive_simulation(test_fish, 80)) == 5934
 
-assert scalable_simulation(test_fish, 18) == 26
-assert scalable_simulation(test_fish, 80) == 5934
+    assert scalable_simulation(test_fish, 18) == 26
+    assert scalable_simulation(test_fish, 80) == 5934
 
 
-### THE REAL THING
-fish = parse_fish(read_input(6).strip())
-print(f'Part 1: {len(naive_simulation(fish, 80))}')
-print(f'Part 2: {scalable_simulation(fish, 256)}')
+    ### THE REAL THING
+    fish = parse_fish(read_input(6))
+    print(f'Part 1: {len(naive_simulation(fish, 80))}')
+    print(f'Part 2: {scalable_simulation(fish, 256)}')
