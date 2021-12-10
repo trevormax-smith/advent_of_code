@@ -4,11 +4,17 @@ from helper import read_input, read_input_lines
 
 
 def parse_height_map(raw_height_map: str) -> List[List[str]]:
-    return [[int(h) for h in row] for row in raw_height_map.strip().split('\n')]
+    return [
+        [int(h) for h in row]
+        for row in raw_height_map.strip().split('\n')
+    ]
 
 
 def is_oob(height_map: List[List[int]], point: Tuple[int, int]) -> bool:
-    return not(0 <= point[0] < len(height_map) and 0 <= point[1] < len(height_map[0]))
+    return (
+        not (0 <= point[0] < len(height_map)
+        and (0 <= point[1] < len(height_map[0]))
+   )
 
 
 def get_neighboring_points(point: Tuple[int, int]) -> List[Tuple[int, int]]:
@@ -27,33 +33,55 @@ def find_low_points(height_map: List[List[int]]) -> List[Tuple[int, int]]:
     for row_num, row in enumerate(height_map):
         for col_num, height in enumerate(row):
             neighboring_points = get_neighboring_points((row_num, col_num))
-            neighboring_points = [np for np in neighboring_points if not is_oob(height_map, np)]
-            if all(height < height_map[np[0]][np[1]] for np in neighboring_points):
+            neighboring_points = [
+                np for np in neighboring_points
+                if not is_oob(height_map, np)
+            ]
+            if all(
+                height < height_map[np[0]][np[1]]
+                for np in neighboring_points
+            ):
                 low_points.append((row_num, col_num))
 
     return low_points
 
 
-def get_point_risk_level(height_map: List[List[int]], point: Tuple[int, int]) -> int:
+def get_point_risk_level(
+    height_map: List[List[int]],
+    point: Tuple[int, int]) -> int:
     return 1 + height_map[point[0]][point[1]]
 
 
 def total_low_point_risk_level(height_map: List[List[int]]) -> int:
     low_points = find_low_points(height_map)
-    return sum(get_point_risk_level(height_map, lp) for lp in low_points)
+    return sum(
+        get_point_risk_level(height_map, lp)
+        for lp in low_points
+    )
 
 
-def find_basin_points(point: Tuple[int, int], height_map: List[List[int]], basin_points:List[Tuple[int, int]]) -> None:
+def find_basin_points(
+    point: Tuple[int, int],
+    height_map: List[List[int]],
+    basin_points:List[Tuple[int, int]]
+) -> None:
     if height_map[point[0]][point[1]] < 9:
         basin_points.append(point)
         neighboring_points = get_neighboring_points(point)
-        neighboring_points = [np for np in neighboring_points if not is_oob(height_map, np) and not np in basin_points]
+        neighboring_points = [
+            np for np in neighboring_points 
+            if not is_oob(height_map, np)
+            and not np in basin_points
+        ]
         for np in neighboring_points:
             find_basin_points(np, height_map, basin_points)
     return None
 
 
-def get_product_of_largest_basin_sizes(height_map: List[List[int]], n_largest_basins: int=3) -> int:
+def get_product_of_largest_basin_sizes(
+    height_map: List[List[int]],
+    n_largest_basins: int=3
+) -> int:
     basin_sizes = []
     low_points = find_low_points(height_map)
     for lp in low_points:
