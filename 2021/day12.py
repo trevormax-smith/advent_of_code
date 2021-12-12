@@ -22,13 +22,12 @@ class Map(object):
         paths = []
         for cave in small_caves:
             paths.extend(self.find_paths(allowed_revisit=cave))
-        return list(set([','.join(path) for path in paths]))
+        # I'm not proud of this but...
+        return [p.split(',') for p in list(set([','.join(path) for path in paths]))]
 
     def find_paths(self, current_node: str=None, current_path: List[str]=None, allowed_revisit: str=None) -> List[List[str]]:
         
-        is_start = False
         if current_node == None:
-            is_start = True
             current_node = START_NODE
             current_path = [START_NODE]
         
@@ -41,9 +40,6 @@ class Map(object):
                 new_path = current_path.copy() + [next_node]
                 new_paths = self.find_paths(next_node, new_path, allowed_revisit)
                 paths.extend(new_paths)
-        
-        if is_start:
-            paths = [path for path in paths if path[-1] == END_NODE]
 
         return paths 
 
