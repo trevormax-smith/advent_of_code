@@ -69,18 +69,20 @@ def get_product_of_largest_basin_sizes(height_map: List[List[int]], n_largest_ba
     return prod
 
 
-### THE TEST
-test_height_map = '''2199943210
-3987894921
-9856789892
-8767896789
-9899965678
-'''
-test_height_map = parse_height_map(test_height_map)
-assert total_low_point_risk_level(test_height_map) == 15
-assert get_product_of_largest_basin_sizes(test_height_map) == 1134
+if __name__ == '__main__':
 
-### THE REAL THING
-height_map = parse_height_map(read_input())
-print(f'Part 1: {total_low_point_risk_level(height_map)}')
-print(f'Part 2: {get_product_of_largest_basin_sizes(height_map)}')
+    ### THE TEST
+    test_height_map = '''2199943210
+    3987894921
+    9856789892
+    8767896789
+    9899965678
+    '''
+    test_height_map = parse_height_map(test_height_map)
+    assert total_low_point_risk_level(test_height_map) == 15
+    assert get_product_of_largest_basin_sizes(test_height_map) == 1134
+
+    ### THE REAL THING
+    height_map = parse_height_map(read_input())
+    print(f'Part 1: {total_low_point_risk_level(height_map)}')
+    print(f'Part 2: {get_product_of_largest_basin_sizes(height_map)}')
