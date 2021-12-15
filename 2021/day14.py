@@ -27,6 +27,29 @@ def pair_insertion(polymer: str, rules: List[Dict[str, str]]) -> str:
     return new_polymer
 
 
+def faster_grow_polymer(polymer: str, rules: List[Dict[str, str]], n_steps: int=10) -> int:
+    
+    element_counts = get_element_counts(polymer)
+    pair_counts = get_pair_counts(polymer)
+
+    for _ in range(n_steps):
+        next_pair_counts = pair_counts.copy()
+
+        for pair in pair_counts:
+            inserted_element = rules[pair]
+            element_counts[inserted_element] += pair_counts[pair]
+
+            new_pair1 = f'{pair[0]}{inserted_element}'
+            new_pair2 = f'{inserted_element}{pair[1]}'
+            next_pair_counts[pair] -= pair_counts[pair]
+            next_pair_counts[new_pair1] += pair_counts[pair]
+            next_pair_counts[new_pair2] += pair_counts[pair]
+
+        pair_counts = next_pair_counts.copy()
+    
+    return max_min_diff(element_counts)
+
+
 def grow_polymer(polymer: str, rules: List[Dict[str, str]], n_steps: int=10) -> str:
     new_polymer = polymer
     for _ in range(n_steps):
@@ -34,16 +57,21 @@ def grow_polymer(polymer: str, rules: List[Dict[str, str]], n_steps: int=10) -> 
     return new_polymer
 
 
-def get_element_counts(polymer: str) -> Dict[str, str]:
+def get_element_counts(polymer: str) -> Dict[str, int]:
     element_counts = defaultdict(lambda: 0)
     for e in polymer:
         element_counts[e] += 1
     return element_counts
 
 
-def max_min_diff(polymer: str) -> int:
-    element_counts = get_element_counts(polymer)
-    
+def get_pair_counts(polymer:str) -> Dict[str, int]:
+    pair_counts = defaultdict(lambda: 0)
+    for e1, e2 in zip(polymer[:-1], polymer[1:]):
+        pair_counts[f'{e1}{e2}'] += 1
+    return pair_counts
+
+
+def max_min_diff(element_counts: Dict[str, int]) -> int:
     return (
         element_counts[max(element_counts, key=lambda x: element_counts[x])] - 
         element_counts[min(element_counts, key=lambda x: element_counts[x])]
@@ -84,13 +112,15 @@ CN -> C
     print(f"After step 4: {new_polymer}")
 
     new_polymer = grow_polymer(polymer, rules)
-    assert max_min_diff(new_polymer) == 1588
-    new_polymer = grow_polymer(polymer, rules, 40)
-    assert max_min_diff(new_polymer) == 2188189693529
+    element_counts = get_element_counts(new_polymer)
+    assert max_min_diff(element_counts) == 1588
+    assert faster_grow_polymer(polymer, rules) == 1588
+    assert faster_grow_polymer(polymer, rules, 40) == 2188189693529
 
     ### THE REAL THING
     puzzle_input = helper.read_input()
     polymer, rules = parse_template_and_rules(puzzle_input)
     new_polymer = grow_polymer(polymer, rules)
-    print(f'Part 1: {max_min_diff(new_polymer)}')
-    print(f'Part 2: {""}')
+    element_counts = get_element_counts(new_polymer)
+    print(f'Part 1: {max_min_diff(element_counts)}')
+    print(f'Part 2: {faster_grow_polymer(polymer, rules, 40)}')
