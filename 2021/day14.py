@@ -72,10 +72,7 @@ def get_pair_counts(polymer:str) -> Dict[str, int]:
 
 
 def max_min_diff(element_counts: Dict[str, int]) -> int:
-    return (
-        element_counts[max(element_counts, key=lambda x: element_counts[x])] - 
-        element_counts[min(element_counts, key=lambda x: element_counts[x])]
-    )
+    return max(element_counts.values()) - min(element_counts.values())
 
 
 if __name__ == '__main__':
